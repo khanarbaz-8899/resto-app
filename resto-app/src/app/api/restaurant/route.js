@@ -36,12 +36,19 @@ export async function GET() {
 export async function POST(request) {
   try {
     const payload = await request.json();
+    let result;
+    await connectDb();
+    if (payload.login) {
+      result = await restaurantSchema.findOne({ email: payload.email, password: payload.password })
+    } else {
+      const restaurant = new restaurantSchema(payload);
+      result = await restaurant.save();
+
+    }
     console.log("🚀 Received Payload in API:", payload);
 
-    await connectDb();
 
-    const restaurant = new restaurantSchema(payload);
-    const result = await restaurant.save();  
+
 
     return NextResponse.json({ success: true, result });
   } catch (error) {
