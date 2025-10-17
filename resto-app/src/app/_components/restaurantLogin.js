@@ -1,9 +1,11 @@
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const RestaurantLogin = () => {
   const [email, setEmail]=useState();
   const [password, setPassword]=useState();
   const [error, setError]=useState(false);
+  const router= useRouter();
 
 const handleLogin = async ()=>{
   if(!email || !password){
@@ -31,11 +33,13 @@ const handleLogin = async ()=>{
   console.log(response);
    if(response.success){
     const {result} = response
-    // delete result.password
-    // localStorage.setItem("restaurantUser",JSON.stringify(result))
-    // router.push("/restaurant/dashboard");
+    delete result.password
+    localStorage.setItem("restaurantUser",JSON.stringify(result))
+    router.push("/restaurant/dashboard");
     alert("Login successfully");
 
+   }else{
+    alert("login failed")
    }
 };
 

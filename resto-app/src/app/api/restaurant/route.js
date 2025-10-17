@@ -37,20 +37,25 @@ export async function POST(request) {
   try {
     const payload = await request.json();
     let result;
+    let success=false
     await connectDb();
     if (payload.login) {
       result = await restaurantSchema.findOne({ email: payload.email, password: payload.password })
+      if(result){
+        success=true
+      }
     } else {
       const restaurant = new restaurantSchema(payload);
       result = await restaurant.save();
+      if(result){
+        success=true;
+      }
 
     }
     console.log("🚀 Received Payload in API:", payload);
 
 
-
-
-    return NextResponse.json({ success: true, result });
+ return NextResponse.json({ success, result });
   } catch (error) {
     console.error("Error in POST /api/restaurant:", error);
     return NextResponse.json(
