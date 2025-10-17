@@ -9,6 +9,7 @@ const AddFoodItems = () => {
 
     const handleAddFoodItems= async ()=>{
         console.log(name,price,path,description);
+        if(!name || !price || !path || !description){
             setError(true);
             return false
         }else{
