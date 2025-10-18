@@ -12,3 +12,13 @@ export async function GET(request,content){
      }
 return NextResponse.json({result,success})
 }
+export async function DELETE(request,content){
+   const id = content.params.id;
+   let success = false;
+   await connectDb();
+   const result = await foodSchema.deleteOne({_id:id});
+   if(result){
+      success=true
+   }
+   return NextResponse.json({result,success})
+}
