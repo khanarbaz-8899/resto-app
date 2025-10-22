@@ -1,40 +1,141 @@
-.input-wrapper{
-  margin:10px;
+.header-wrapper {
+  display: flex;
+  justify-content: space-between;
 }
 
-.input-field{
-   width: 200px;
-  height: 30px;
+.header-wrapper ul {
+  display: flex;
 }
 
-.button{
+.header-wrapper ul li {
+  list-style-type: none;
+  padding: 5px;
+}
+
+.header-wrapper ul li a {
+  text-decoration: none;
+}
+
+.header-wrapper ul li button {
+  background-color: transparent;
+  border: none;
+  color: blueviolet;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.footer-wrapper {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  background-color: #fff;
+}
+
+.input-error {
+  position: absolute;
+  padding: 8px;
+  color: red;
+  font-size: 13px;
+}
+
+.input-wrapper {
+  margin: 10px;
+}
+
+.input-field {
   width: 200px;
   height: 30px;
 }
-.container{
+
+.button {
+  width: 200px;
+  height: 30px;
+}
+
+.container {
   text-align: center;
 }
-.button-link{
+
+.button-link {
   border: 0;
   cursor: pointer;
   background-color: transparent;
   color: skyblue;
   margin: 20px;
 }
-table, th, td{
+
+table,
+th,
+td {
   border: 1px solid #000;
   border-collapse: collapse;
   padding: 10px;
 }
-table td button{
+
+table td button {
   margin: 5px;
 }
-table img{
+
+table img {
   width: 80px;
 }
-.input-error{
-    position: absolute;
-    padding: 8px;
-    color: red;
-    font-size: 13px;
+
+.input-error {
+  position: absolute;
+  padding: 8px;
+  color: red;
+  font-size: 13px;
+}
+
+.main-page-banner {
+  background-image: url("https://png.pngtree.com/background/20250102/original/pngtree-advertising-restaurant-menu-with-fast-food-images-through-online-banners-social-picture-image_15837895.jpg");
+  background-color: rgb(0, 0, 0, 0.6);
+  background-blend-mode: multiply;
+  padding: 30px;
+  height: 230px;
+  color: white;
+  text-align: center;
+}
+
+.input-wrapper {
+  background-color: white;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: auto;
+  width: 60%;
+}
+
+.select-input {
+  height: 40px;
+  border: none;
+  width: 30%;
+  padding-left: 15px;
+}
+
+.search-input {
+  height: 40px;
+  border: none;
+  width: 45%;
+  border-left: 1px solid #ccc;
+  padding-left: 15px;
+}
+
+.location-list {
+  color: #000;
+  list-style-type: none;
+  text-align: left;
+  position: absolute;
+  background-color: #fff;
+  padding: 0;
+  margin-left: -5px;
+  border: 1px solid #ccc;
+}
+.location-list li{
+   width: 180px;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
 }
