@@ -89,7 +89,8 @@ table img {
   font-size: 13px;
 }
 
-.main-page-banner {
+.main-page-banner,
+.restaurant-page-banner {
   background-image: url("https://png.pngtree.com/background/20250102/original/pngtree-advertising-restaurant-menu-with-fast-food-images-through-online-banners-social-picture-image_15837895.jpg");
   background-color: rgb(0, 0, 0, 0.6);
   background-blend-mode: multiply;
@@ -133,9 +134,87 @@ table img {
   margin-left: -5px;
   border: 1px solid #ccc;
 }
-.location-list li{
-   width: 180px;
-    padding: 5px;
-    border-bottom: 1px solid #ccc;
-    cursor: pointer;
+
+.location-list li {
+  width: 180px;
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.restaurant-listing-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  margin-bottom: 50px;
+}
+
+.restaurant-wrapper {
+  width: 45%;
+  background-color: orange;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.restaurant-wrapper .heading-wrapper,
+.restaurant-wrapper .address-wrapper {
+  padding-left: 16px;
+  display: flex;
+  justify-content: flex-start;
+
+}
+
+.restaurant-wrapper h5 {
+  margin-left: 15px;
+}
+
+.restaurant-wrapper .address {
+  margin-left: 5px;
+}
+
+.restaurant-page-banner h1 {
+  font-size: 65px;
+}
+
+.detail-wrapper {
+  display: flex;
+  background-color: orange;
+}
+
+.detail-wrapper h3 {
+  width: 50%;
+}
+
+.food-item-wrapper {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.food-item-wrapper .list-item {
+  color: orange;
+  font-weight: bold;
+  border-bottom: 1px solid;
+  padding: 20px;
+  display: flex;
+  text-transform: capitalize;
+}
+
+.food-item-wrapper .list-item button {
+  color: #fff;
+  border: none;
+  background-color: orange;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.food-item-wrapper .list-item img{
+  width: 100px;
+  padding-right: 20px;
+}
+.food-item-wrapper .list-item .description{
+  font-weight:lighter;
 }
