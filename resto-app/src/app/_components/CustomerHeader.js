@@ -2,43 +2,69 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-
 const CustomerHeader = (props) => {
+    const [cartNumber, setCartNumber] = useState(0);
+    const [cartItem, setCartItem] = useState([]);
 
-    const cartStorage = JSON.parse(localStorage.getItem('cart'));
-    const [cartNumber, setCartNumber] = useState(cartStorage?.length)
-    const [cartItem, setCartItem] = useState(cartStorage);
-
-
+    // Initialize cart from localStorage only on client side
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const cartStorage = localStorage.getItem('cart');
+            if (cartStorage) {
+                try {
+                    const parsedCart = JSON.parse(cartStorage);
+                    setCartItem(Array.isArray(parsedCart) ? parsedCart : [parsedCart]);
+                    setCartNumber(Array.isArray(parsedCart) ? parsedCart.length : 1);
+                } catch (error) {
+                    console.error("Error parsing cart:", error);
+                    setCartItem([]);
+                    setCartNumber(0);
+                }
+            }
+        }
+    }, []);
 
     useEffect(() => {
-        if (props.cartData) {
-            console.log(props);
-            if (cartNumber) {
-                if (cartItem[0].resto_id != props.cartData.resto_id) {
+        if (props.cartData && props.cartData.length > 0) {
+            const newItem = props.cartData[props.cartData.length - 1]; // Get the last added item
+
+            if (cartNumber > 0) {
+                // Check if different restaurant
+                if (cartItem[0].resto_id !== newItem.resto_id) {
                     localStorage.removeItem("cart");
                     setCartNumber(1);
-                    setCartItem([props.cartData])
-                    localStorage.setItem("cart", JSON.stringify(props.cartData))
-
-                } else{
-                    let localCartItem = cartItem;
-                    localCartItem.push(JSON.parse(JSON.stringify(props.cartData)))
-                    setCartItem(localCartItem);
-                    setCartNumber(cartNumber + 1)
-                    localStorage.setItem("cart", JSON.stringify("localCartItem"))
+                    setCartItem([newItem]);
+                    localStorage.setItem("cart", JSON.stringify([newItem]));
+                } else {
+                    // Same restaurant - add to cart
+                    const updatedCart = [...cartItem, newItem];
+                    setCartItem(updatedCart);
+                    setCartNumber(updatedCart.length);
+                    localStorage.setItem("cart", JSON.stringify(updatedCart));
                 }
-
             } else {
-                setCartNumber(1)
-                setCartItem([props.cartData])
-                localStorage.setItem("cart", JSON.stringify(props.cartData))
+                // First item in cart
+                setCartNumber(1);
+                setCartItem([newItem]);
+                localStorage.setItem("cart", JSON.stringify([newItem]));
             }
-
         }
+    }, [props.cartData]);
 
+    useEffect(() => {
+        if (props.removeCartData) {
+            let localCartItem = cartItem.filter((item) => {
+                return item._id != props.removeCartData
+            });
+            setCartItem(localCartItem);
+            setCartNumber(cartNumber - 1);
+            localStorage.setItem("cart", JSON.stringify(localCartItem))
+            if (localCartItem.length == 0) {
+                localStorage.removeItem("cart")
+            }
+        }
+    }, [props.removeCartData])
 
-    }, [props.cartData])
     return (
         <div className="header-wrapper">
             <div className="logo">
@@ -55,14 +81,14 @@ const CustomerHeader = (props) => {
                     <Link href="/">SignUp</Link>
                 </li>
                 <li>
-                    <Link href="/">Cart({cartNumber ? cartNumber : 0})</Link>
+                    <Link href= {cartNumber?"/cart":"#"}>Cart({cartNumber})</Link>
                 </li>
                 <li>
                     <Link href="/">Add Restaurant</Link>
                 </li>
-
             </ul>
         </div>
-    )
-}
+    );
+};
+
 export default CustomerHeader;

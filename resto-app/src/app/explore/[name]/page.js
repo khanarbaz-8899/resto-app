@@ -10,19 +10,37 @@ const Page = (props) => {
     const id = searchParams.id;
     const [restaurantDetails, setRestaurantDetails] = useState();
     const [foodItems, setFoodItems] = useState([]);
-    const [cartData, setCartData] = useState([]) // Changed from "" to []
+    const [cartData, setCartData] = useState([]); 
+    const [cartIds, setCartIds] = useState([]);
+    const [removeCartData, setRemoveCartData] = useState();
+
+    // Load cart from localStorage on mount
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+            setCartData(storedCart);
+            setCartIds(storedCart.map((item) => item._id));
+        }
+    }, []);
+
+    // Save cart to localStorage whenever cartData changes
+    useEffect(() => {
+        if (typeof window !== "undefined" && cartData.length >= 0) {
+            localStorage.setItem("cart", JSON.stringify(cartData));
+        }
+    }, [cartData]);
 
     useEffect(() => {
         loadRestaurantDetails();
-    }, [id]); // Added id dependency
+    }, [id]);
 
     const loadRestaurantDetails = async () => {
         try {
-            let response = await fetch("http://localhost:3000/api/customer/" + id)
+            let response = await fetch("http://localhost:3000/api/customer/" + id);
             response = await response.json();
             if (response.success) {
-                setRestaurantDetails(response.details)
-                setFoodItems(response.foodItems)
+                setRestaurantDetails(response.details);
+                setFoodItems(response.foodItems);
             }
         } catch (error) {
             console.error("Error loading restaurant details:", error);
@@ -30,12 +48,23 @@ const Page = (props) => {
     }
     
     const addToCart = (item) => {
-        setCartData([...cartData, item]) // Changed to add items to array
+        const updatedCart = [...cartData, item];
+        setCartData(updatedCart);
+        setCartIds([...cartIds, item._id]);
+        setRemoveCartData(null);
+    }
+
+    const removeFromCart = (id) => {
+        const updatedCart = cartData.filter(item => item._id !== id);
+        const updatedIds = cartIds.filter(itemId => itemId !== id);
+        setCartData(updatedCart);
+        setCartIds(updatedIds);
+        setRemoveCartData(id);
     }
     
     return (
         <div>
-            <CustomerHeader cartData={cartData}/>
+            <CustomerHeader cartData={cartData} removeCartData={removeCartData}/>
             <div className="restaurant-page-banner">
                 <h1>{decodeURI(name)}</h1>
             </div>
@@ -47,14 +76,18 @@ const Page = (props) => {
             </div>
             <div className="food-item-wrapper">
                 {
-                    foodItems.length > 0 ? foodItems.map((item, index) => ( // Added index key
-                        <div className="list-item" key={index}>
+                    foodItems.length > 0 ? foodItems.map((item, index) => (
+                        <div className="list-item" key={item._id || index}>
                             <img style={{ width: 100 }} src={item.img_path} alt={item.name} />
                             <div>
                                 <div>{item.name}</div>
                                 <div>{item.price}</div>
                                 <div className="description">{item.description}</div>
-                                <button onClick={() => addToCart(item)}>Add To Cart</button>
+                                {
+                                    cartIds.includes(item._id) ?
+                                    <button onClick={() => removeFromCart(item._id)}>Remove From Cart</button> :
+                                    <button onClick={() => addToCart(item)}>Add To Cart</button>
+                                }
                             </div>
                         </div>
                     ))
