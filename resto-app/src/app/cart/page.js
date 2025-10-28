@@ -1,94 +1,140 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import CustomerHeader from "../_components/CustomerHeader";
 import Footer from "../_components/Footer";
 import { DELIVERY_CHARGES, TAX } from "../lib/constant";
 
 const Page = () => {
-    const [cartStorage, setCartStorage] = useState([]);
-    const [total, setTotal] = useState(0);
+  const [cartStorage, setCartStorage] = useState([]);
+  const [total, setTotal] = useState(0);
 
-    useEffect(() => {
-        // ✅ Access localStorage only in the browser
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-            const parsedCart = JSON.parse(storedCart);
-            setCartStorage(parsedCart);
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      const parsedCart = JSON.parse(storedCart);
+      setCartStorage(parsedCart);
+      const totalAmount = parsedCart.reduce((sum, item) => sum + item.price, 0);
+      setTotal(totalAmount);
+    }
+  }, []);
 
-            // ✅ Calculate total safely
-            const totalAmount = parsedCart.reduce((sum, item) => sum + item.price, 0);
-            setTotal(totalAmount);
-        }
-    }, []);
+  useEffect(() => {
+    const totalAmount = cartStorage.reduce((sum, item) => sum + item.price, 0);
+    setTotal(totalAmount);
+  }, [cartStorage]);
 
-    // ✅ Update total dynamically when cart changes
-    useEffect(() => {
-        const totalAmount = cartStorage.reduce((sum, item) => sum + item.price, 0);
-        setTotal(totalAmount);
-    }, [cartStorage]);
+  const removeFromCart = (id) => {
+    const updatedCart = cartStorage.filter((item) => item._id !== id);
+    setCartStorage(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
 
-    const removeFromCart = (id) => {
-        const updatedCart = cartStorage.filter(item => item._id !== id);
-        setCartStorage(updatedCart);
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
-    };
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-orange-100">
+      <CustomerHeader />
 
-    return (
-        <div>
-            <CustomerHeader />
+      <main className="flex-grow container mx-auto px-4 sm:px-6 py-10">
+        <h1 className="text-4xl font-extrabold text-center text-orange-600 mb-10">
+          🛒 Your Food Cart
+        </h1>
 
-            <div className="food-item-wrapper">
-                {
-                    cartStorage.length > 0 ? (
-                        cartStorage.map((item, index) => (
-                            <div className="list-item" key={item._id || index}>
-                                <div className="list-item-block-1">
-                                    <img style={{ width: 100 }} src={item.img_path} alt={item.name} />
-                                </div>
-                                <div className="list-item-block-2">
-                                    <div>{item.name}</div>
-                                    <div className="description">{item.description}</div>
-                                    <button onClick={() => removeFromCart(item._id)}>
-                                        Remove From Cart
-                                    </button>
-                                </div>
-                                <div className="list-item-block-3">Price : {item.price}</div>
-                            </div>
-                        ))
-                    ) : (
-                        <h1>No Food Item Added For Now</h1>
-                    )
-                }
-            </div>
-
-            <div className="block-1">
-                <div className="total-wrapper">
-                    <div className="row">
-                        <span>Food Charges :</span>
-                        <span>{total}</span>
-                    </div>
-                    <div className="row">
-                        <span>Tax :</span>
-                        <span>{(total * TAX) / 100}</span>
-                    </div>
-                    <div className="row">
-                        <span>Delivery Charges :</span>
-                        <span>{DELIVERY_CHARGES}</span>
-                    </div>
-                    <div className="row">
-                        <span>Total Amount :</span>
-                        <span>{total + DELIVERY_CHARGES + (total * TAX / 100)}</span>
-                    </div>
-                     <div className="block-2">
-                        <button className="order-now">Order Now</button>
-                    </div>
+        {cartStorage.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+            {cartStorage.map((item, index) => (
+              <div
+                key={item._id || index}
+                className="bg-white rounded-2xl shadow-md hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 p-5 flex items-center space-x-4"
+              >
+                {/* Food Image */}
+                <div className="flex-shrink-0">
+                  <img
+                    src={item.img_path}
+                    alt={item.name}
+                    className="w-28 h-28 rounded-xl object-cover border border-gray-200"
+                  />
                 </div>
-               
 
+                {/* Details */}
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {item.name}
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                    {item.description}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-4">
+                    <p className="text-lg font-bold text-orange-600">
+                      ₹{item.price}
+                    </p>
+                    <button
+                      onClick={() => removeFromCart(item._id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center mt-20">
+            <img
+              src="/empty-cart.png"
+              alt="Empty Cart"
+              className="w-52 h-52 mb-6 opacity-80"
+            />
+            <h1 className="text-2xl font-semibold text-gray-600">
+              Your cart is empty 😢
+            </h1>
+            <p className="text-gray-500 text-sm mt-2">
+              Add some delicious food to make your tummy happy!
+            </p>
+          </div>
+        )}
+
+        {/* Order Summary */}
+        {cartStorage.length > 0 && (
+          <div className="mt-12 max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <span className="text-orange-500 text-3xl">💰</span> Order Summary
+            </h2>
+
+            <div className="space-y-3 text-gray-700">
+              <div className="flex justify-between">
+                <span>Food Charges:</span>
+                <span className="font-medium">₹{total}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tax ({TAX}%):</span>
+                <span className="font-medium">₹{(total * TAX) / 100}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Delivery Charges:</span>
+                <span className="font-medium">₹{DELIVERY_CHARGES}</span>
+              </div>
+              <div className="border-t border-gray-200 my-3"></div>
+              <div className="flex justify-between text-lg font-bold text-gray-900">
+                <span>Total Amount:</span>
+                <span>
+                  ₹{total + DELIVERY_CHARGES + (total * TAX) / 100}
+                </span>
+              </div>
             </div>
-            <Footer />
-        </div>
-    );
+
+            <div className="mt-8 text-center">
+              <button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-10 py-3 rounded-2xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300">
+                Proceed to Checkout 🍽️
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  );
 };
 
 export default Page;

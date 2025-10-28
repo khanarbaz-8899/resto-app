@@ -285,3 +285,6 @@ table img {
   background-color: darkorange;
   transform: scale(1.05);
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
