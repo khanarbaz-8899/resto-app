@@ -1,32 +1,52 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import CustomerHeader from "../_components/CustomerHeader";
 import Footer from "../_components/Footer";
 import { DELIVERY_CHARGES, TAX } from "../lib/constant";
 
-const Page = () => {
+const CartPage = () => {
   const [cartStorage, setCartStorage] = useState([]);
   const [total, setTotal] = useState(0);
+  const router = useRouter();
 
+  // ✅ Check login status
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      const parsedCart = JSON.parse(storedCart);
-      setCartStorage(parsedCart);
-      const totalAmount = parsedCart.reduce((sum, item) => sum + item.price, 0);
-      setTotal(totalAmount);
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user");
+      if (!user) {
+        router.push("/auth"); // Redirect to login/signup page
+      }
+    }
+  }, [router]);
+
+  // ✅ Load cart data from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedCart = localStorage.getItem("cart");
+      if (storedCart) {
+        setCartStorage(JSON.parse(storedCart));
+      }
     }
   }, []);
 
+  // ✅ Recalculate total when cart changes
   useEffect(() => {
     const totalAmount = cartStorage.reduce((sum, item) => sum + item.price, 0);
     setTotal(totalAmount);
   }, [cartStorage]);
 
+  // ✅ Remove item from cart
   const removeFromCart = (id) => {
     const updatedCart = cartStorage.filter((item) => item._id !== id);
     setCartStorage(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  // ✅ Handle Checkout
+  const handleCheckout = () => {
+  router.push("/login?redirect=order");
+
   };
 
   return (
@@ -94,7 +114,7 @@ const Page = () => {
           </div>
         )}
 
-        {/* Order Summary */}
+        {/* ✅ Order Summary */}
         {cartStorage.length > 0 && (
           <div className="mt-12 max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -124,7 +144,10 @@ const Page = () => {
             </div>
 
             <div className="mt-8 text-center">
-              <button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-10 py-3 rounded-2xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300">
+              <button
+                onClick={handleCheckout}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-10 py-3 rounded-2xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300"
+              >
                 Proceed to Checkout 🍽️
               </button>
             </div>
@@ -137,4 +160,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default CartPage;
