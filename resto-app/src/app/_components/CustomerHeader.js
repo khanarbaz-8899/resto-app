@@ -72,6 +72,16 @@ const CustomerHeader = (props) => {
     }
   }, [props.removeCartData]);
 
+  useEffect(()=>{
+    if(props.removeCartData){
+       setCartItem([])
+       setCartNumber(0);
+       localStorage.removeItem("cart");
+
+    }
+
+  },[props.removeCartData])
+
   // ✅ Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -105,7 +115,8 @@ const CustomerHeader = (props) => {
             {!user ? (
               <>
                 <li className="hover:text-orange-500 transition">
-                  <Link href="/login">Login</Link>
+                 <Link href="/auth">Login</Link>
+
                 </li>
                 <li className="hover:text-orange-500 transition">
                   <Link href="/auth">Sign Up</Link>
@@ -114,7 +125,7 @@ const CustomerHeader = (props) => {
             ) : (
               <div className="flex items-center gap-4">
                 <span className="text-orange-500 font-semibold">
-                  Hi, {user.name}
+              <Link href="/myprofile">    Hi, {user.name}</Link>
                 </span>
                 <button
                   onClick={handleLogout}

@@ -45,7 +45,7 @@ const CartPage = () => {
 
   // ✅ Handle Checkout
   const handleCheckout = () => {
-  router.push("/login?redirect=order");
+  router.push("/order");
 
   };
 

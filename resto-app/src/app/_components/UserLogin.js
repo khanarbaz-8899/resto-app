@@ -29,7 +29,7 @@ const UserLogin = ({ switchToSignup }) => {
         localStorage.setItem("user", JSON.stringify(data.user));
 
         // ✅ Always redirect to order page after login
-        router.push("/order");
+        router.push("/");
       } else {
         alert("❌ " + data.error);
       }
