@@ -13,7 +13,7 @@ export async function POST(req) {
     const { name, mobile, password, city, address, } = await req.json();
 
     // 3️⃣ Validate all required fields
-    if (!name || !mobile || !password || !city || !address || !contact) {
+    if (!name || !mobile || !password || !city || !address) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -21,7 +21,7 @@ export async function POST(req) {
     }
 
     // 4️⃣ Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await deliveryPartnersSchema.findOne({name});
     if (existingUser) {
       return NextResponse.json(
         { error: "User already exists" },

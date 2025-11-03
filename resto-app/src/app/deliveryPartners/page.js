@@ -12,14 +12,64 @@ const Page = () => {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
 
-  const handleLogin = (e) => {
+
+  const handleSignup = async (e) => {
     e.preventDefault();
-    console.log({ loginMobile, loginPassword });
+
+    try {
+      console.log({ name, mobile, password, confirmPassword, city, address });
+      const res = await fetch("/api/deliveryPartners/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, mobile, password, city, address }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("✅ Account created successfully!");
+        // Fixed: Pass an object to JSON.stringify
+        localStorage.setItem("delivery", JSON.stringify({
+          name,
+          mobile,
+          password,
+          confirmPassword,
+          city,
+          address
+        }));
+
+      } else {
+        alert("❌ " + data.error);
+      }
+    } catch (error) {
+      console.error("Signup Error:", error);
+      alert("❌ Something went wrong!");
+    }
   };
 
-  const handleSignup = (e) => {
+  const loginHandle = async (e) => {
     e.preventDefault();
-    console.log({ name, mobile, password, confirmPassword, city, address });
+    try {
+      const res = await fetch("/api/deliveryPartners/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile: loginMobile, password: loginPassword }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("✅ Login successful!");
+        localStorage.setItem("delivery", JSON.stringify(data));
+
+
+      } else {
+        alert("❌ " + data.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("❌ Something went wrong!");
+    }
   };
 
   return (
@@ -32,38 +82,39 @@ const Page = () => {
         {/* LOGIN SECTION */}
         <div className="bg-gray-800/70 border border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-orange-400/20 transition">
           <h2 className="text-2xl font-semibold mb-4 text-center">Login</h2>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-300 mb-1">Mobile Number</label>
-              <input
-                type="text"
-                placeholder="Enter Mobile"
-                value={loginMobile}
-                onChange={(e) => setLoginMobile(e.target.value)}
-                className="w-full bg-transparent border border-gray-600 text-white placeholder-gray-400 rounded-lg p-3 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition"
-                required
-              />
-            </div>
 
-            <div>
-              <label className="block text-sm text-gray-300 mb-1">Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                className="w-full bg-transparent border border-gray-600 text-white placeholder-gray-400 rounded-lg p-3 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">Mobile Number</label>
+            <input
+              type="text"
+              placeholder="Enter Mobile"
+              value={loginMobile}
+              onChange={(e) => setLoginMobile(e.target.value)}
+              className="w-full bg-transparent border border-gray-600 text-white placeholder-gray-400 rounded-lg p-3 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition"
+              required
+            />
+          </div>
 
-            <button
-              type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg py-2 transition"
-            >
-              Login
-            </button>
-          </form>
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              className="w-full bg-transparent border border-gray-600 text-white placeholder-gray-400 rounded-lg p-3 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg py-2 transition"
+            onClick={loginHandle}
+          >
+            Login
+          </button>
+
         </div>
 
         {/* SIGNUP SECTION */}

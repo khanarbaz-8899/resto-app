@@ -19,7 +19,7 @@ export async function POST(req) {
     }
 
     // ✅ Check if user exists
-    const existingUser = await deliveryPartnersModel.findOne({mobile });
+    const existingUser = await deliveryPartnersModel.findOne({ mobile });
     if (!existingUser) {
       return NextResponse.json(
         { error: "User not found. Please sign up first!" },
