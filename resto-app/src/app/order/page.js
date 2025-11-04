@@ -8,15 +8,15 @@ const OrderPage = () => {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
-  const router = useRouter();
   const [removeCartData, setRemoveCartData] = useState(false);
+  const [deliveryPartners, setDeliveryPartners] = useState([]);
+  const router = useRouter();
 
-
+  // ✅ Load user, cart, and delivery partners on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedCart = localStorage.getItem("cart");
 
-    // ✅ Redirect if not logged in
     if (!storedUser) {
       router.push("/login");
       return;
@@ -29,104 +29,119 @@ const OrderPage = () => {
       const cartData = JSON.parse(storedCart);
       setCart(cartData);
 
-      // ✅ Safely calculate total even if data is messy
+      // ✅ Safely calculate total
       const cartTotal = cartData.reduce((sum, item) => {
-        const rawPrice = item.price || item.foodPrice || item.cost || 0;
-        const rawQty = item.quantity || item.qty || 1;
-
-        const price = Number(String(rawPrice).replace(/[^\d.-]/g, "")) || 0;
-        const qty = Number(String(rawQty).replace(/[^\d.-]/g, "")) || 0;
-
+        const price = Number(String(item.price || item.foodPrice || item.cost || 0).replace(/[^\d.-]/g, "")) || 0;
+        const qty = Number(String(item.quantity || item.qty || 1).replace(/[^\d.-]/g, "")) || 0;
         return sum + price * qty;
       }, 0);
-
-      console.log("🧮 Calculated cart total:", cartTotal);
       setTotal(cartTotal);
     }
+
+    // ✅ Fetch delivery partners based on user's city
+    const fetchDeliveryPartners = async () => {
+      try {
+        const city = parsedUser.city;
+        const response = await fetch(`http://localhost:3000/api/deliveryPartners/${city}`);
+        const data = await response.json();
+        console.log("Fetched Delivery Partners:", data);
+
+        const partners = data.result || data.data || [];
+        setDeliveryPartners(partners);
+      } catch (error) {
+        console.error("Error fetching delivery partners:", error);
+      }
+    };
+
+    fetchDeliveryPartners();
   }, [router]);
 
-  const orderNow = async () => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      const storedCart = localStorage.getItem("cart");
+const orderNow = async () => {
+  try {
+    const storedUser = localStorage.getItem("user");
+    const storedCart = localStorage.getItem("cart");
 
-      if (!storedUser) {
-        alert("Please login first");
-        router.push("/login");
-        return;
-      }
-
-      if (!storedCart) {
-        alert("Your cart is empty");
-        return;
-      }
-
-      const parsedUser = JSON.parse(storedUser);
-      const cartData = JSON.parse(storedCart);
-
-      if (!Array.isArray(cartData) || cartData.length === 0) {
-        alert("Your cart is empty");
-        return;
-      }
-
-      // ✅ Fresh cart total (avoid stale state)
-      const cartTotal = cartData.reduce((sum, item) => {
-        const rawPrice = item.price || item.foodPrice || item.cost || 0;
-        const rawQty = item.quantity || item.qty || 1;
-        const price = Number(String(rawPrice).replace(/[^\d.-]/g, "")) || 0;
-        const qty = Number(String(rawQty).replace(/[^\d.-]/g, "")) || 0;
-        return sum + price * qty;
-      }, 0);
-
-      const delivery = Number(DELIVERY_CHARGES) || 0;
-      const tax = Number(TAX) || 0;
-      const amount = cartTotal + delivery + tax;
-
-      // console.log("🧾 Debug Values:");
-      // console.log("total:", cartTotal);
-      // console.log("DELIVERY_CHARGES:", delivery);
-      // console.log("TAX:", tax);
-      // console.log("Final amount:", amount);
-
-      const collection = {
-        user_id: parsedUser.id,
-        restaurantId: cartData[0].resto_id, // ✅ match schema
-        foodItemIds: cartData.map((item) => item._id),
-        deliveryBoyId: "68f86d159ace641c306f2a6e",
-        status: "confirm",
-        amount,
-      };
-      
-
-
-      const response = await fetch("http://localhost:3000/api/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(collection),
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert("✅ Order Confirmed");
-        // localStorage.removeItem("cart");
-        setRemoveCartData(true);
-        router.push("/myprofile");
-      } else {
-        alert("Order Failed: " + (data.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Order error:", error);
-      alert("Order Failed: " + error.message);
+    if (!storedUser) {
+      alert("Please login first");
+      router.push("/login");
+      return;
     }
-  };
+
+    if (!storedCart) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    const parsedUser = JSON.parse(storedUser);
+    const cartData = JSON.parse(storedCart);
+
+    if (!Array.isArray(cartData) || cartData.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    // fetch delivery partners for the user's city
+    const city = parsedUser.city;
+    const response = await fetch(`http://localhost:3000/api/deliveryPartners/${city}`);
+    const deliveryBoyResponse = await response.json();
+    console.log("🧾 Delivery Partner API Response:", deliveryBoyResponse);
+
+    const partners = deliveryBoyResponse.result || deliveryBoyResponse.data || [];
+    if (!partners.length) {
+      alert("No delivery partners available in your city");
+      return;
+    }
+
+    const selectedDeliveryBoy = partners[0];
+
+    // compute totals
+    const cartTotal = cartData.reduce((sum, item) => {
+      const price = Number(String(item.price || item.foodPrice || item.cost || 0).replace(/[^\d.-]/g, "")) || 0;
+      const qty = Number(String(item.quantity || item.qty || 1).replace(/[^\d.-]/g, "")) || 0;
+      return sum + price * qty;
+    }, 0);
+
+    const delivery = Number(DELIVERY_CHARGES) || 0;
+    const tax = Number(TAX) || 0;
+    const amount = cartTotal + delivery + tax;
+
+    const collection = {
+      user_id: parsedUser.id || parsedUser._id,
+      restaurantId: cartData[0].resto_id,
+      foodItemIds: cartData.map((item) => item._id),
+      deliveryBoyId: selectedDeliveryBoy._id || selectedDeliveryBoy.id,
+      status: "confirm",
+      amount,
+    };
+
+    const orderResponse = await fetch("http://localhost:3000/api/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(collection),
+    });
+
+    if (!orderResponse.ok) throw new Error(`HTTP error! status: ${orderResponse.status}`);
+    const data = await orderResponse.json();
+
+    if (data.success) {
+      alert("✅ Order Confirmed");
+      setRemoveCartData(true);
+      router.push("/deliverydashboard");
+    } else {
+      alert("Order Failed: " + (data.message || "Unknown error"));
+    }
+  } catch (error) {
+    console.error("Order error:", error);
+    alert("Order Failed: " + error.message);
+  }
+};
+
 
   if (!user) return null;
+  
 
+  // ✅ JSX Rendering
   return (
-
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-orange-900 text-white p-8">
       <CustomerHeader removeCartData={removeCartData} />
       <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl">

@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import DeliveryHeader from "../_components/DeliveryHeader";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const [loginMobile, setLoginMobile] = useState("");
@@ -11,6 +13,14 @@ const Page = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
+  const router = useRouter();
+
+  useEffect(()=>{
+    const delivery =JSON.parse(localStorage.getItem("delivery"));
+    if(delivery){
+      router.push("/deliverydashboard")
+    }
+  },[])
 
 
   const handleSignup = async (e) => {
@@ -37,6 +47,7 @@ const Page = () => {
           city,
           address
         }));
+              router.push("deliverydashboard")
 
       } else {
         alert("❌ " + data.error);
@@ -61,6 +72,8 @@ const Page = () => {
       if (res.ok) {
         alert("✅ Login successful!");
         localStorage.setItem("delivery", JSON.stringify(data));
+        router.push("deliverydashboard")
+
 
 
       } else {
@@ -73,10 +86,14 @@ const Page = () => {
   };
 
   return (
+    <div>
+      <DeliveryHeader/>
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+  
       <h1 className="text-3xl font-bold mb-8 text-orange-400 text-center">
         Delivery Partner Portal
       </h1>
+    
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
         {/* LOGIN SECTION */}
@@ -204,6 +221,7 @@ const Page = () => {
               Sign Up
             </button>
           </form>
+            </div>
         </div>
       </div>
     </div>

@@ -63,3 +63,40 @@ export async function GET(request) {
     );
   }
 }
+// ✅ DELETE: Delete an order by ID
+export async function DELETE(request) {
+  try {
+    await connectDb();
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get("id");
+
+    if (!orderId) {
+      return NextResponse.json({
+        success: false,
+        message: "Order ID is missing",
+      });
+    }
+
+    // 🟢 FIX: Use the actual model (orderSchema) not "Order"
+    const deletedOrder = await orderSchema.findByIdAndDelete(orderId);
+
+    if (!deletedOrder) {
+      return NextResponse.json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Order deleted successfully",
+    });
+  } catch (error) {
+    console.error("DELETE /api/order error:", error);
+    return NextResponse.json({
+      success: false,
+      message: "Failed to delete order",
+      error: error.message,
+    });
+  }
+}

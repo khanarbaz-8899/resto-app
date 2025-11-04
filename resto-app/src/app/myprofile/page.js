@@ -29,6 +29,29 @@ const ProfilePage = () => {
       setMyOrders([]);
     }
   };
+  const removeOrder = async (orderId) => {
+  const confirmDelete = window.confirm("Are you sure you want to remove this order?");
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/order?id=${orderId}`, {
+      method: "DELETE",
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert("Order removed successfully!");
+      setMyOrders((prev) => prev.filter((order) => order._id !== orderId));
+    } else {
+      alert(result.message || "Failed to remove order. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    alert("Something went wrong while deleting the order.");
+  }
+};
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-orange-50 to-gray-100">
@@ -86,6 +109,12 @@ const ProfilePage = () => {
                   <button className="text-sm font-semibold text-orange-600 hover:text-orange-700 transition">
                     View Details →
                   </button>
+                   <button
+                      onClick={() => removeOrder(item._id)}
+                      className="text-sm font-semibold text-red-500 hover:text-red-600 transition"
+                    >
+                      🗑 Remove
+                    </button>
                 </div>
               </motion.div>
             ))}

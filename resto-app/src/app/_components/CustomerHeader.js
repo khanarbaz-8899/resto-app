@@ -147,6 +147,9 @@ const CustomerHeader = (props) => {
             <li className="hover:text-orange-500 transition">
               <Link href="/add-restaurant">Add Restaurant</Link>
             </li>
+             <li className="hover:text-orange-500 transition">
+              <Link href="deliveryPartners">Delivery Partner</Link>
+            </li>
           </ul>
         </nav>
       </div>
